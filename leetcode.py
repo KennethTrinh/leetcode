@@ -120,3 +120,39 @@ def sieve(n):
 
 
 
+
+def combine(n, k):
+    result = []
+    def dfs(start, path):
+        if len(path) == k:
+            result.append(path[:])
+            return
+        for i in range(start, n+1):
+            path.append(i)
+            dfs(i+1, path)
+            path.pop()
+    dfs(1, [])
+    return result
+
+print(combine(4, 2))
+
+def permute(n, k):
+    result = []
+    def dfs(start, path):
+        if len(path) == k:
+            result.append(path[:])
+            return
+        for i in range(1, n+1):
+            if i not in path:
+                path.append(i)
+                dfs(i+1, path)
+                path.pop()
+    dfs(1, [])
+    return result
+
+print(permute(4, 2))
+
+
+        
+
+
