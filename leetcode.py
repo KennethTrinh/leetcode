@@ -118,41 +118,42 @@ def sieve(n):
         p += 1
     return primes
 
+from collections import defaultdict
+
+def _trie():
+    return defaultdict(_trie)
+
+class Trie:
+    def __init__(self):
+        self.trie = _trie()
+    def insert(self, word):
+        t = self.trie
+        for c in word:
+            t = t[c]
+        t['end'] = True
+    def search(self, word):
+        t = self.trie
+        n = len(word)
+        for i, c in enumerate(word): 
+            if i == n-1 and i != 0 and (c not in t) and any( 'end' in t[j] for j in t ):
+                # the maximmum number of 'j' keys in t is 26, so the any is constant time
+                return True
+            if c not in t:
+                return False
+            t = t[c]
+        return 'end' in t
 
 
-
-def combine(n, k):
-    result = []
-    def dfs(start, path):
-        if len(path) == k:
-            result.append(path[:])
-            return
-        for i in range(start, n+1):
-            path.append(i)
-            dfs(i+1, path)
-            path.pop()
-    dfs(1, [])
-    return result
-
-print(combine(4, 2))
-
-def permute(n, k):
-    result = []
-    def dfs(start, path):
-        if len(path) == k:
-            result.append(path[:])
-            return
-        for i in range(1, n+1):
-            if i not in path:
-                path.append(i)
-                dfs(i+1, path)
-                path.pop()
-    dfs(1, [])
-    return result
-
-print(permute(4, 2))
-
-
+inputs = ['This is a sentence', 'I like food', 'Words are good', 'How r u', 'Wordz suck']
+def solution(inputs):
+    t = Trie()
+    for sentence in inputs:
+        for word in sentence.split():
+            if t.search(word):
+                print(f"Terminate at {word}")
+                return
+            t.insert(word)
+            
         
-
-
+        
+solution(inputs)
