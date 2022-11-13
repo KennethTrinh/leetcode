@@ -145,181 +145,111 @@ class Trie:
 
 
 
-"""
-E1 : Invalid Input Format
-E2: Duplicate pair
-E3: Parent node has more than 2 children
-E4: Multiple Roots
-E5: Input Contains Cycle
-"""
+A = 6
+B = 20
+# A = 21
+# B = 29
 
-def SExpression(nodes):
-    if checkE1(nodes):
-        return "E1"
-    graph = [[False for _ in range(26)] for _ in range(26)]
-    node = set()
-    E2 = checkE2(nodes, graph, node)
-    E3 = checkE3(graph)
-    if E2:
-        return "E2"
-    if E3:
-        return "E3"
+def getFactors(n):
+    sqrt = int(n**0.5)
+    arr = []
+    for i in range(sqrt, 0, -1):
+        if n%i==0:
+            m = n//i #m bigger, i smaller
+            if m!=i:
+                arr.insert(0,i) #insert from front
+            arr.append(m) #insert to back
+    return arr
 
-    numRoots = 0
-    root = ' '
-
-    for n in node:
-        for i in range(26):
-            if graph[i][ord(n) - ord('A')]:
-                break
-            if i == 25:
-                numRoots += 1
-                root = n
-                if dfs(n, graph, [False for _ in range(26)]):
-                    return "E5"
-    if numRoots > 1:
-        return "E4"
-    if numRoots == 0:
-        return "E5"
-    return helper(root, graph)
-
-def checkE1(nodes):
-    """
-    check that nodes is:
-    - one line
-    - has no leading or trailing whitespace
-    - each pair is formatted as an open parenthesis ( 
-        followed be a parent followed by a comma followed by a child
-        followed by a closing parenthesis )
-    - all values are single uppercase letters
-    - parent child pairs are separated by a single space
-    # example:(A,B) (B,C) (A,E) (B,D)
-    """
-    ok = True
-    for i, c in enumerate(nodes):
-        if i%6 == 0:
-            ok &= c == '('
-        elif i%6 == 1:
-            ok &= len(c) == 1 and c.isalpha() and c.isupper()
-        elif i%6 == 2:
-            ok &= c == ','
-        elif i%6 == 3:
-            ok &= len(c) == 1 and c.isalpha() and c.isupper()
-        elif i%6 == 4:
-            ok &= c == ')'
-        elif i%6 == 5:
-            ok &= c == ' '
-    return not ok
-
-print(checkE1("(A,B) (B,C) (A,E) (B,D)"))
-            
-def addIntChar(x, c):
-    return chr(x + ord(c))
-
-def checkE3(graph):
-    for i in range(26):
-        count = 0
-        for j in range(26):
-            if graph[i][j]:
-                count += 1
-        if count > 2:
+def checkConsecutiveFactorsMutiplyToN(n):
+    factors = getFactors(n)
+    for i in range(1, len(factors)):
+        if factors[i] * factors[i-1] == n and factors[i] - factors[i-1] == 1:
             return True
     return False
 
-def checkE2(nodes, graph, node):
-    for i in range(1, len(nodes), 6):
-        parent = ord(nodes[i]) - ord('A')
-        child = ord(nodes[i + 2]) - ord('A')
-        if graph[parent][child]:
-            return True
-        graph[parent][child] = True
-        node.add(addIntChar(parent, 'A'))
-        node.add(addIntChar(parent, 'A'))
 
-    return False
+def solution(A, B):
+    result = 0
+    for i in range(A, B+1):
+        if checkConsecutiveFactorsMutiplyToN(i):
+            result += 1
+    return result
 
-def dfs(node, graph, visited):
-    if visited[ord(node) - ord('A')]:
-        return True
-    visited[ord(node) - ord('A')] = True
-    for i in range(26):
-        if graph[ord(node) - ord('A')][i]:
-            if dfs(addIntChar(i, 'A'), graph, visited):
-                return True
+# print(solution(A, B))
 
-    return False
 
-def helper(root, graph):
-    l = ""
-    r = ""
-    for i in range(26):
-        if graph[ord(root) - ord('A')][i]:
-            l = helper(addIntChar(i, 'A'), graph)
-            for j in range(i + 1, 26):
-                if graph[ord(root) - ord('A')][j]:
-                    r = helper(addIntChar(j, 'A'), graph)
-                    break
-            break
-    return "(" + root + l + r + ")"
-# test the above code
 
-nodes = "(A,B);(B,D);(D,E);(A,C);(C,F);(E,G)"
-nodes = "(A,B);(A,C);(B,D);(D,C)"
-print(SExpression(nodes))
-
-# def NumDaysBetween(year1, month1, day1, year2, month2, day2):
-#     if year1 > year2:
-#         return -1
-#     count1 = yearsToDays(month1,year1) + monthsToDays(month1,year1) + day1
-#     count2 = yearsToDays(month2,year2) + monthsToDays(month2,year2) + day2
-#     print(count1, count2)
-#     return count2 - count1
-
-# yearsToDays = lambda month,year: 365*year + countLeaps(month,year)
-
-# def countLeaps(month,year):
-#     if month<=2:
-#         year -=1
-#     return (year // 4) - (year // 100) + (year // 400)
-
-# monthsToDays = lambda month, year: sum(DaysInMonth(i, year) for i in range(1, month))
-    
-# def DaysInMonth(month,year):
-#     if month == 2:
-#         if isLeapYear(year):
-#             return 29
-#         return 28
-#     if month in [4,6,9,11]:
-#         return 30
-#     return 31
-
-# def isLeapYear(year):
-#     if year % 4 != 0:
+# # check if array contains all numbers from 1 to K
+# def solution(A, K):
+#     if len(A) < K:
 #         return False
-#     if year % 100 != 0:
-#         return True
-#     if year % 400 != 0:
-#         return False
-#     return True
+#     if len(A) == K:
+#         return 1 if len(set(A)) == K else 0
+#     m = { i:False for i in range(1, K+1) }
+#     for i in range(len(A)):
+#         m[A[i]] = True
+#     return all (m.values())
 
-# # def monthsToDays(month,year):
-# #     days = 0
-# #     for i in range(1,month):
-# #         days += DaysInMonth(i,year)
-# #     return days
+#A is sorted in non-decreasing order
 
-# # Constant time
-# # def monthsToDays(month,year):
-# #     days = 0
-# #     for i in range(1, month):
-# #         days += daysInMonthWithoutLeap(i)
-# #     return days
+def solution(A, K):
+    n = len(A)
+    for i in range(n - 1):
+        if A[i] + 1  < A[i+1]:
+            return False
+    if A[0] != 1 and A[n-1] < K:
+        return False
+    return True
 
-# # def daysInMonthWithoutLeap(month): #doesnt account for feb 29, that is accounted for in countLeaps
-# #     if month == 2:
-# #         return 28
-# #     if month in [4, 6, 9, 11]:
-# #         return 30
-# #     return 31
 
-# print(NumDaysBetween(2010, 1, 1, 2011, 7, 1))
+
+print(solution([1,1,2,3,3], 3))
+print(solution([1,1,3], 2))
+print(solution([1,1,2, 3, 4], 4))
+
+
+# print(solution([1,1,2, 3, 4, 5], 4))
+
+
+
+
+
+class Tree():
+    def __init__(self, x):
+        self.val = x
+        self.l = None
+        self.r = None
+
+
+# T = Tree(1)
+# T.l = Tree(2)
+# T.r = Tree(2)
+# T.l.l = Tree(1)
+# T.l.r = Tree(2)
+# T.r.l = Tree(4)
+# T.r.r = Tree(1)
+
+T = Tree(1)
+T.r = Tree(2)
+T.r.r = Tree(1)
+T.r.l = Tree(1)
+T.r.r.l = Tree(4)
+
+
+
+def solution(T):
+    def traverse(root, mSet):
+        if root is None or root.val in mSet:
+            return len(mSet)
+        mSet.add(root.val)
+        l = traverse(root.l, mSet)
+        r = traverse(root.r, mSet)
+        mSet.remove(root.val)
+        return max(l, r)
+    return traverse(T, set())
+
+# print(solution(T))
+
+
+
