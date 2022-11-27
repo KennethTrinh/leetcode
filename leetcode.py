@@ -146,3 +146,10 @@ class Trie:
 
 
 
+def subsets(arr):
+    result = [[]]
+    for num in arr:
+        result += [curr + [num] for curr in result]
+    return result
+
+
