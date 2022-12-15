@@ -153,3 +153,95 @@ def subsets(arr):
     return result
 
 
+
+
+
+from itertools import product
+a = [10,2]
+a = [1,2,3]
+def solution(a):
+    n = len(a)
+    result = 0
+    for i,j in product(range(n), repeat=2):
+        result += int( str(a[i]) + str(a[j]) )
+    return result
+
+
+
+# print(solution(a))
+
+field =  [[0, 0, 0],
+          [0, 0, 0],
+          [0, 0, 0],
+          [1, 0, 0],
+          [1, 1, 0]]
+
+figure = [[0, 0, 1],
+          [0, 1, 1],
+          [0, 0, 1]]
+
+# should be 2
+field =  [[0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0],
+          [1, 1, 0, 1, 0],
+          [1, 0, 1, 0, 1]]
+
+figure = [[1, 1, 1],
+          [1, 0, 1],
+          [1, 0, 1]]
+
+# should be -1
+field =  [[0, 0, 0, 0],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0],
+          [1, 0, 0, 1],
+          [1, 1, 0, 1]]
+figure = [[1, 1, 0],
+          [1, 0, 0],
+          [1, 0, 0]]
+
+def overlay(startRow, startCol, figure, field):
+    row = [ field[0][j] for j in range(len(field[0]))]
+    for i in range(startRow, startRow + 3):
+        for j in range(startCol, startCol + 3):
+            if field[i][j] == 1 and figure[i-startRow][j-startCol] == 1:
+                # return field 
+                return all(row)
+            elif field[i][j] == 1 and figure[i-startRow][j-startCol] == 0:
+                # field[i][j] = 1
+                row[j] = 1
+            elif field[i][j] == 0 and figure[i-startRow][j-startCol] == 1:
+                # field[i][j] = 1
+                row[j] = 1
+        if all(row):
+            return True
+        # print(row)
+        row = [ field[i+1][j] for j in range(len(field[0]))] 
+    return all(row)
+
+# pprint(field)
+# print(overlay(startRow, figure, field))
+# print()
+# print(overlay(startRow+1, figure, field))
+# print()
+# print(overlay(startRow+2, figure, field))
+
+def solution(field, figure):
+    n = len(field)
+    cols = len(field[0]) - 2
+    for i in range(n):
+        for j in range(cols):
+            if overlay(i, j, figure, field):
+                return j
+    return -1
+
+print(solution(field, figure))
+# pprint(overlay(1, 2, figure, field))
+
+            
+    
+
+
+
+
