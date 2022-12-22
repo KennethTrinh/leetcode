@@ -144,8 +144,6 @@ class Trie:
         return 'end' in t
 
 
-
-
 def subsets(arr):
     result = [[]]
     for num in arr:
@@ -153,120 +151,6 @@ def subsets(arr):
     return result
 
 
-
-
-
-n = 3
-queries = [[5,3], [4,7], [2,3]]
-# n = 2
-# queries = [[1,2]]
-queries = [[17,21],[23,5],[15,7],[3,21],[31,9],[5,15],[11,2],[19,7]]
-def helper(a,b):
-    if a == b:
-        return 1
-    elif a > b:
-        return 1 + helper(a//2, b)
-    else:
-        return 1 + helper(a, b//2)
-def cycleLengthQueries(n, queries):
-    result = []
-    for a, b in queries:
-        result.append(
-            helper(a,b)
-        )
-    return result
-
-# print(cycleLengthQueries(n, queries))
-
-
-"""
-# plot a complete binary tree with 2^n -1 nodes
-import matplotlib.pyplot as plt
-import networkx as nx
-
-def add_nodes_and_edges(G, root, level, max_level):
-    if level > max_level:
-        return
-    
-    left_child = 2 * root
-    right_child = 2 * root + 1
-    
-    G.add_node(left_child)
-    G.add_edge(root, left_child)
-    add_nodes_and_edges(G, left_child, level+1, max_level)
-    
-    G.add_node(right_child)
-    G.add_edge(root, right_child)
-    add_nodes_and_edges(G, right_child, level+1, max_level)
-
-def create_complete_binary_tree(n):
-    G = nx.DiGraph()
-    G.add_node(1)
-    add_nodes_and_edges(G, 1, 1, n)
-    return G
-
-def plot_complete_binary_tree(G):
-    pos = nx.drawing.nx_agraph.graphviz_layout(G, prog='dot')
-    nx.draw(G, pos, with_labels=True, node_size=1000, width=2)
-    plt.show()
-
-G = create_complete_binary_tree(4)
-
-plot_complete_binary_tree(G)
-
-
-"""
-n = 5
-edges = [[1,2],[2,3],[3,4],[4,2],[1,4],[2,5]]
-
-n = 4
-edges = [[1,2], [3,4]]
-
-n = 4
-edges = [[1,2],[1,3],[1,4]]
-
-n = 5
-edges = [[4,3],[4,5],[5,3],[3,1],[5,2]]
-from collections import defaultdict
-from itertools import product
-def isPossible(n, edges):
-    """
-    Zero is trivial.
-
-    For 2 vertices, we check that both of them can be connected to a third one (or to each other) with 
-    which neither of them share an edge.
-
-    For 4 vertices, we can add only internal edges, becuase we are allowed to use not more than 2 of them. 
-    We add edges based on the number of existing edges within the group of 4 odd vertices:
-        0 - connect any combination of two pairs
-        1 - add 2 more to make an X̲ / Π pattern
-        2 - add 2 more to make a loop / hourglass pattern
-        4 - add 2 more to make a loop + hourglass pattern
-        3 or 5 edges won't solve the problem. 6 is the maximum possible number of edges between 4 vertices.
-    """
-    G = defaultdict(set)
-    for i,j in edges:
-        G[i].add(j)
-        G[j].add(i)
-    
-    odd = [i for i in range(1, n+1) if len(G[i]) % 2]
-    f = lambda a, b: a not in G[b]
-
-    if len(odd) == 2:
-        a, b = odd
-        return any( f(a,i ) and f(b,i) for i in range(1, n+1) )
-    
-    if len(odd) == 4:
-        a,b,c,d = odd
-        return f(a,b) and f(c,d) or \
-                f(a,c) and f(b,d) or \
-                f(a,d) and f(c,b)  
-    return len(odd) == 0
-
-# print(isPossible(n, edges))
-
-n = 15
-# n = 3
 def getPrimeFactors(n):
     i = 2
     factors = []
@@ -280,12 +164,90 @@ def getPrimeFactors(n):
         factors.append(n)
     return factors
 
-def smallestValue(n):
-    factors = getPrimeFactors(n)
-    while sum(factors) != n:
-        n = sum(factors)
-        factors = getPrimeFactors(n)
-    return n
+
+nums1 = [1,2,3,4,5]
+nums2 = [1,2,3,4,5]
+
+# nums1 = [1,2,3]
+# nums2 = [1,2,3]
+# minimum cost is 3:
+# swap (0,1) to make nums1 = [2,1,3] --> cost = 0 + 1
+# then swap (0,2) to make nums1 = [3,1,2] --> cost = 0 + 2
+# end result is nums1 = [3,1,2] != nums2 = [1,2,3] for all i
+
+# for an array of length n, you need a maximum of n-1 swaps so that nums1 != nums2
+# it is impossible when we have m identical elements that must go in m diifferent slots, 
+# and n-m < m --> n < 2m
+
+# nums1 = [1,2,2]
+# nums2 = [1,2,2]
+nums1 = [2,2,2,1,3]
+nums2 = [1,2,2,3,3]
+
+def minimumTotalCost(nums1, nums2):
+    n = len(nums1)
+    ans = 0
+    freq = {}
+    maxFrequency, maxFrequencyValue, toSwap = 0,0,0
+    for i in range(n):
+        if nums1[i] == nums2[i]:
+            freq[nums1[i]] = freq.get(nums1[i], 0) + 1
+            if freq[nums1[i]] > maxFrequency:
+                maxFrequency = freq[nums1[i]]
+                maxFrequencyValue = nums1[i]
+            toSwap += 1
+            ans += i
+    print(freq, ans, maxFrequency)
+    for i in range(n):
+        if maxFrequency > toSwap//2 and nums1[i] != nums2[i] and  nums1[i]!=maxFrequencyValue and nums2[i]!=maxFrequencyValue:
+            ans += i
+            toSwap += 1
+
+    if maxFrequency > toSwap//2: return -1
+
+    return ans                    
 
 
-print(getPrimeFactors(n))
+
+# print( minimumTotalCost( nums1, nums2) )
+
+stones = [0,2,5,6,7]
+stones = [0,5,13,14]
+stones = [0,5,12,25,28,35]
+diff = lambda arr: [abs(arr[i+1]-arr[i]) for i in range(len(arr)-1)]
+def maxJump(stones):
+    res = stones[1] - stones[0]
+    for i in range(2, len(stones)):
+        res = max(res, stones[i] - stones[i - 2])
+    return res
+
+# print( maxJump(stones) )
+
+from collections import defaultdict
+import heapq
+vals = [1,2,3,4,10,-10,-20]
+edges = [[0,1],[1,2],[1,3],[3,4],[3,5],[3,6]]
+k = 2
+
+vals = [-5]
+edges = []
+k = 0
+neighbors  = defaultdict(set)
+for i, j in edges:
+    neighbors[i].add(j)
+    neighbors[j].add(i)
+
+best = min(vals)
+for i in range(len(vals)):
+    heap = []
+    for j in neighbors[i]:
+        if vals[j] > 0 and len(heap) < k:
+            heapq.heappush(heap, vals[j])
+        elif vals[j] > 0 and len(heap) == k:
+            heapq.heappushpop(heap, vals[j])
+    best = max(best, sum(heap) + vals[i])
+print(best)
+        
+
+
+
