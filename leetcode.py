@@ -164,90 +164,117 @@ def getPrimeFactors(n):
         factors.append(n)
     return factors
 
+from collections import deque
+n = 6
+edges = [[1,2],[1,4],[1,5],[2,6],[2,3],[4,6]]
 
-nums1 = [1,2,3,4,5]
-nums2 = [1,2,3,4,5]
+class UF:
+    def __init__(self):
+        self.uf = {}
+    def find(self, x):
+        if x not in self.uf:
+            self.uf[x] = x
+        if x != self.uf[x]:
+            self.uf[x] = self.find(self.uf[x])
+        return self.uf[x]
+    def union(self, x, y):
+        rootX = self.find(x)
+        rootY = self.find(y)
+        self.uf[ rootX ] = rootY
+def magnificentSets(n, edges):
 
-# nums1 = [1,2,3]
-# nums2 = [1,2,3]
-# minimum cost is 3:
-# swap (0,1) to make nums1 = [2,1,3] --> cost = 0 + 1
-# then swap (0,2) to make nums1 = [3,1,2] --> cost = 0 + 2
-# end result is nums1 = [3,1,2] != nums2 = [1,2,3] for all i
-
-# for an array of length n, you need a maximum of n-1 swaps so that nums1 != nums2
-# it is impossible when we have m identical elements that must go in m diifferent slots, 
-# and n-m < m --> n < 2m
-
-# nums1 = [1,2,2]
-# nums2 = [1,2,2]
-nums1 = [2,2,2,1,3]
-nums2 = [1,2,2,3,3]
-
-def minimumTotalCost(nums1, nums2):
-    n = len(nums1)
-    ans = 0
-    freq = {}
-    maxFrequency, maxFrequencyValue, toSwap = 0,0,0
-    for i in range(n):
-        if nums1[i] == nums2[i]:
-            freq[nums1[i]] = freq.get(nums1[i], 0) + 1
-            if freq[nums1[i]] > maxFrequency:
-                maxFrequency = freq[nums1[i]]
-                maxFrequencyValue = nums1[i]
-            toSwap += 1
-            ans += i
-    print(freq, ans, maxFrequency)
-    for i in range(n):
-        if maxFrequency > toSwap//2 and nums1[i] != nums2[i] and  nums1[i]!=maxFrequencyValue and nums2[i]!=maxFrequencyValue:
-            ans += i
-            toSwap += 1
-
-    if maxFrequency > toSwap//2: return -1
-
-    return ans                    
-
-
-
-# print( minimumTotalCost( nums1, nums2) )
-
-stones = [0,2,5,6,7]
-stones = [0,5,13,14]
-stones = [0,5,12,25,28,35]
-diff = lambda arr: [abs(arr[i+1]-arr[i]) for i in range(len(arr)-1)]
-def maxJump(stones):
-    res = stones[1] - stones[0]
-    for i in range(2, len(stones)):
-        res = max(res, stones[i] - stones[i - 2])
-    return res
-
-# print( maxJump(stones) )
-
-from collections import defaultdict
-import heapq
-vals = [1,2,3,4,10,-10,-20]
-edges = [[0,1],[1,2],[1,3],[3,4],[3,5],[3,6]]
-k = 2
-
-vals = [-5]
-edges = []
-k = 0
-neighbors  = defaultdict(set)
-for i, j in edges:
-    neighbors[i].add(j)
-    neighbors[j].add(i)
-
-best = min(vals)
-for i in range(len(vals)):
-    heap = []
-    for j in neighbors[i]:
-        if vals[j] > 0 and len(heap) < k:
-            heapq.heappush(heap, vals[j])
-        elif vals[j] > 0 and len(heap) == k:
-            heapq.heappushpop(heap, vals[j])
-    best = max(best, sum(heap) + vals[i])
-print(best)
+        uf = UF()
         
+
+        # check if graph has odd number edge cycles by checking if neighbor node has been visited before
+        # and if the neighbor was on the same level as the current node when we were visiting the neighbor
+        def BFS(node):
+            q = deque([(node,1)])
+            seen = {node:1}
+            level = 1
+            while q:
+                cur,level = q.popleft()
+                for nei in graph[cur]:
+                    if nei not in seen:
+                        seen[nei] = level+1
+                        q.append((nei,level+1))
+                    ### check if there is a odd number edges cycle
+                    elif seen[nei]==level: 
+                        return -1
+            return level
+        
+        graph = defaultdict(list)
+        for s,e in edges:
+            graph[s].append(e)
+            graph[e].append(s)
+            uf.union(s,e)
+        
+        ### Store the largest group in each connected component
+        maxGroup = defaultdict(int)
+        ### Start a BFS on each node, and update the maxGroup for each connected component
+        for i in range(1,n+1):
+            groups = BFS(i)
+            ### There is a odd number edges cycle, so return -1
+            if groups==-1:
+                return -1
+            ### Find the root of the current connected component
+            root = uf.find(i)
+            ### Update it.
+            maxGroup[root] = max(maxGroup[root],groups)
+
+        return sum(maxGroup.values())
+    
+
+# print(magnificentSets(n, edges))
+
+n = 4
+roads = [[1,2,9],[2,3,6],[2,4,5],[1,4,7]]
+
+n = 4
+roads = [[1,2,2],[1,3,4],[3,4,7]]
+def solution(n, roads):
+    adjList = {}
+    for v1,v2,w in roads:
+        if v1 not in adjList:
+            adjList[v1] = []
+        if v2 not in adjList:
+            adjList[v2] = []
+        adjList[v1].append((v2,w))
+        adjList[v2].append((v1,w))
+
+    def BFS(start):
+        q = deque([start])
+        visited = set()
+        minimum = float('inf')
+        while q:
+            node = q.popleft()
+            visited.add(node)
+            print(q)
+            for nei, w in adjList[node]:
+                minimum = min(minimum, w)
+                if nei not in visited:
+                    q.append(nei)
+        return minimum
+
+skill = [3,2,5,1,3,4]
+skill = [3,4]
+skill = [1,1,2,3]
+def dividePlayers(skill):
+    skill.sort()
+    n = len(skill)
+    k = skill[0] + skill[-1]
+    res = skill[0] * skill[-1]
+    for i in range(1, n//2):
+        if skill[i] + skill[n-i-1] != k:
+            return -1
+        res += skill[i] * skill[n-i-1]
+    return res
+        
+
+print(
+    dividePlayers(skill)
+)
+
 
 
 
