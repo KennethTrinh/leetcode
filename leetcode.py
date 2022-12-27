@@ -6,7 +6,7 @@ pprint = lambda arr: [print(row) for row in arr]
 isPowerofTwo = lambda x: (x & (x-1)) == 0
 prefixSum = lambda arr: [0] + list(accumulate(arr))
 countTotal = lambda P, x, y: P[y+1] - P[x]
-
+MOD = 1_000_000_007
 
 class TreeNode:
     def __init__(self, val=0, left=None, right=None):
@@ -212,4 +212,149 @@ class ListNode:
             ptr = ptr.next
         print()
 
+
+s = "103301"
+
+def bruteForce(s):
+    # get all subsequences of length 5 of s and check if they are palindromes
+    subseqeunces = [''.join(arr) for arr in subsets(s) if len(arr) == 5]
+    # print(subseqeunces)
+    isPalindrome = lambda x: x == x[::-1]
+    return sum([1 for sub in subseqeunces if isPalindrome(sub)])
+
+
+def countAppearances(s,t):
+    """
+    Counts the number of subsequences of t that appear in s
+    """
+    m,n = len(s), len(t)
+    dp = [0] * (n+1)
+    dp[-1] = 1
+    for i in range(m):
+        for j in range(n):
+            if s[i] == t[j]:
+                dp[j] += dp[j+1]
+    return dp[0]
+
+# print(
+#     countAppearances('0000000', '00000'),
+# )
+
+
+
+
+
+def countPalindromes(s):
+    ans = 0 
+    for x in range(10): 
+        for y in range(10):
+            pattern = f"{x}{y}|{y}{x}" 
+            dp = [0]*6
+            dp[-1] = 1 
+            for i in range(len(s)): 
+                for j in range(5): 
+                    if s[i] == pattern[j] or j == 2:
+                        dp[j] += dp[j+1]
+            ans = (ans + dp[0]) % 1_000_000_007
+    return ans 
+
+
+
+# print(countPalindromes(s))
+
+
+
+from collections import Counter
+customers = "YYNY"
+customers = "NNNNN"
+customers = "YYYY"
+customers = "YNYY"
+def bestClosingTime(customers):
+    c = Counter(customers)
+    penalty = best = c['Y']
+    index = 0
+    # print(penalty, best)
+    for i in range(1, len(customers)):
+        if customers[i-1] == 'Y':
+            penalty -= 1
+        else:
+            penalty += 1
+        if penalty < best:
+            best = penalty
+            index = i
+        # print(penalty)
+    index = len(customers) if customers[-1] == 'Y' and penalty - 1 < best else index
+    return index
+
+def bestClosingTime(customers):
+    binarize = lambda arr, y: [1 if x == y else 0 for x in arr]
+    prefixSum = lambda arr: [0] + list(accumulate(arr))
+    prefixSumN = prefixSum( binarize(customers, 'N') )
+    suffixSumY = prefixSum( binarize(customers[::-1], 'Y') ) [::-1]
+    ans, ind = float('inf'), 0
+    for i in range(len(customers) + 1):
+        penalty = prefixSumN[i] + suffixSumY[i]
+        if penalty < ans:
+            ans = penalty
+            ind = i
+    return ind
+    
+    # y,n = [0], [0]
+    # cnt = 0
+    # for i in range(len(customers)):
+    #     if customers[i] == 'N':
+    #         cnt += 1
+    #     n.append(cnt)
+    # cnt= 0
+    # for i in range(len(customers)-1, -1, -1):
+    #     if customers[i] == 'Y':
+    #         cnt += 1
+    #     y.append(cnt)
+    # y = y[::-1]
+    # print(n)
+    # print(y)
+    # print(prefixSumN)
+    # print(suffixSumY)
+
+
+# print(
+# bestClosingTime(customers)
+# )        
+            
+import numpy as np
+grid = [[0,1,1],[1,0,1],[0,0,1]]
+# grid = [[1,1,1],[1,1,1]]
+
+def onesMinusZeroes(grid):
+    grid = np.array(grid)
+    m, n = grid.shape
+
+    onesRow = grid.sum(axis=1)
+    onesCol = grid.sum(axis=0)
+    zerosRow = m - onesRow
+    zerosCol = n - onesCol
+
+    print('Ones Row: ', onesRow)
+    print('Ones Col: ', onesCol)
+    print('Zeros Row: ', zerosRow)
+    print('Zeros Col: ', zerosCol)
+
+    # for i in range(m):
+    #     for j in range(n):
+    #         matrix[i][j] = onesRow[i] + onesCol[j] - zerosRow[i] - zerosCol[j]
+
+    #         matrix[i][j] = onesRow[i] + onesCol[j] - (m - onesRow[i]) - (n - onesCol[j])
+    #         matrix[i][j] = 2 * (onesRow[i] + onesCol[j]) - m - n
+
+    # print(matrix)
+
+    matrix = onesRow[:, np.newaxis] + onesCol - zerosRow[:, np.newaxis] - zerosCol
+    matrix = np.add.outer(onesRow, onesCol) - np.add.outer(zerosRow, zerosCol)
+    print('Ones Row:', onesRow[:, np.newaxis])
+    print('Ones Col:', onesCol)
+    print('Zeros Row:', zerosRow[:, np.newaxis])
+    print('Zeros Col:', zerosCol)
+
+    print('u: ', np.add.outer(onesRow, onesCol))
+    print('v: ', np.add.outer(zerosRow, zerosCol))
 
