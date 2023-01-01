@@ -37,18 +37,27 @@ class TreeNode:
             return None
         root = helper(arr, 1)
         return root
+    def levelOrder(self, root):
+        if not root:
+            return []
+        res = []
+        queue = [root]
+        while queue:
+            res.append([node.val for node in queue])
+            queue = [child for node in queue for child in (node.left, node.right) if child]
+        return res
 
 
 
-root =  TreeNode.list_to_node([4,2,7,1,3,6,9])
-root = TreeNode.list_to_node([2,1,3])
-root  = TreeNode.list_to_node([-10,9,20,'null','null',15,7])
-root = TreeNode.list_to_node([-3])
-root = TreeNode.list_to_node([1,2,3,'null','null',4,5])
+# root =  TreeNode.list_to_node([4,2,7,1,3,6,9])
+# root = TreeNode.list_to_node([2,1,3])
+# root  = TreeNode.list_to_node([-10,9,20,'null','null',15,7])
+# root = TreeNode.list_to_node([-3])
+# root = TreeNode.list_to_node([1,2,3,'null','null',4,5])
 
 root = TreeNode.list_to_node([3,4,5,1,2, 'null', 'null']) 
 # root = TreeNode.list_to_node([3,4,5,1,2,'null','null','null','null',0])
-subRoot = TreeNode.list_to_node([4,1,2])
+# subRoot = TreeNode.list_to_node([4,1,2])
 
 
 
@@ -214,3 +223,135 @@ class ListNode:
 
 
 
+primes = set('2357')
+s = "23542185131"
+k = 3
+minLength = 2
+
+def partition(s: str, k: int):
+    """
+    all possible non-overlapping partitions of k groups:
+    """
+    if k == 1:# If there is only one group, the only partition is the entire string
+        return [(s,)]
+    if not s:# If the string is empty, there are no partitions
+        return []
+
+    partitions = []
+    # Consider all possible partitions of the string into the first group and the remaining groups
+    for i in range(1, len(s)):
+        for p in partition(s[i:], k - 1): # Partition the remaining groups recursively
+            partitions.append((s[:i],) + p)
+    return partitions
+
+# print(
+#     partition(s, k)
+# )
+
+
+s = "23542185131"
+k = 3 # number of substrings
+minLength = 2
+isPrime = lambda x: x in {'2', '3', '5', '7'}
+def beautifulPartitions(s, k, minLength):
+    prime = "2357"
+    dp = [[0]*(len(s)+1) for _ in range(k)]
+    # dp[i][j] = number of ways to partition s[j:] into i groups
+    if s[0] in prime and s[-1] not in prime: 
+        for j in range(len(s)+1): 
+            dp[0][j] = 1 # for 
+        for i in range(1, k): 
+            for j in range(len(s)-1, -1, -1): 
+                dp[i][j] = dp[i][j+1]
+                if minLength <= j <= len(s)-minLength and s[j-1] not in prime and s[j] in prime: 
+                    dp[i][j] = (dp[i][j] + dp[i-1][j+minLength]) % 1_000_000_007
+                    if dp[i-1][j + minLength] > 0:
+                        print( s[j+minLength:], s[j:] , '-->', i+1 , j)
+    print(dp[-1][0])
+
+
+    import pandas as pd
+    df = pd.DataFrame(dp, index = [f'{i+1} group' for i in range(k)], columns = [' '] + list(s))
+    print(df)
+
+beautifulPartitions(s, k, minLength)
+
+roads = [[3,1],[3,2],[1,0],[0,4],[0,5],[4,6]] 
+seats = 2
+
+
+
+
+f = lambda n, s: n if n <= s else f(n-s,s) + n
+
+
+
+roads = [[0,1],[0,2],[0,3]]
+seats = 5
+
+seats = 2
+roads = [[0,2], [2,1], [2,3], [3,4], [3,5], [0,6]]
+from collections import defaultdict
+from math import ceil
+def minimumFuelCost(roads, seats):
+    graph = defaultdict(list)
+    for u, v in roads:
+        graph[u].append(v)
+        graph[v].append(u)
+
+    result = 0
+    def dfs(node, parent):
+        nonlocal result
+        cnt = 1
+        for neighbor in graph[node]:
+            if neighbor != parent:
+                cnt += dfs(neighbor, node)
+        print(node, cnt)
+        if node != 0:
+            result += ceil(cnt / seats)
+        return cnt
+    dfs(0, -1)
+    return result
+
+# print(minimumFuelCost(roads, seats))
+
+root = [6,2,13,1,4,9,15,'null','null','null','null','null','null',14]
+queries = [2,5,16]
+root  = TreeNode().list_to_node(root)
+
+
+
+
+from bisect import bisect_left 
+def closestNodes(root, queries):
+    def dfs(n, v):                                                 
+        if n: 
+            dfs(n.left, v)
+            v.append(n.val)
+            dfs(n.right, v)     # inorder traversal of BST
+    nums = []                                                     
+    dfs(root, nums)   # nums will be sorted
+    print(nums)                                              
+
+    results, n = [], len(nums)
+    
+    for q in queries:                                              # [2] make queries using the binary
+        i = bisect_left(nums, q)                                   #     search, then consider several
+        if i < n and nums[i] == q : 
+            results.append([q,q])         
+        else:                                                      
+            if i == 0: # if the query is smaller than the smallest element in the tree 
+                results.append([-1,nums[0]])  
+            elif i == n:  # if the query is larger than the largest element in the tree
+                results.append([nums[-1],-1])
+            else: 
+                results.append([nums[i-1], nums[i]])
+                
+    return results
+
+# print(closestNodes(root, queries))
+"""
+what is the difference between bisect_left and bisect_right?
+bisect_left returns the index of the first element that is greater than or equal to x.
+bisect_right returns the index of the first element that is greater than x.
+"""
