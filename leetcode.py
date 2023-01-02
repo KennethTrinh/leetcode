@@ -50,18 +50,6 @@ class TreeNode:
 
 
 
-# root =  TreeNode.list_to_node([4,2,7,1,3,6,9])
-# root = TreeNode.list_to_node([2,1,3])
-# root  = TreeNode.list_to_node([-10,9,20,'null','null',15,7])
-# root = TreeNode.list_to_node([-3])
-# root = TreeNode.list_to_node([1,2,3,'null','null',4,5])
-
-root = TreeNode.list_to_node([3,4,5,1,2, 'null', 'null']) 
-# root = TreeNode.list_to_node([3,4,5,1,2,'null','null','null','null',0])
-# subRoot = TreeNode.list_to_node([4,1,2])
-
-
-
 class Node:
     def __init__(self, val = 0, neighbors = None):
         self.val = val
@@ -239,58 +227,8 @@ def partition(s: str, k: int):
             partitions.append((s[:i],) + p)
     return partitions
 
-s = "abaccdbbd"
-k = 3
 
-def maxPalindrome(s,k):
-    isPalindrome = lambda i, j: False if i< 0 else s[i:j] == s[i:j][::-1]
-    dp = [0] * (len(s) + 1)
-    for i in range(k, len(s) + 1):
-        dp[i] = dp[i - 1]
-        if isPalindrome(i-k, i):
-            dp[i] = max(dp[i], dp[i - k] + 1)
-        if isPalindrome(i-k-1, i):
-            dp[i] = max(dp[i], dp[i - k - 1] + 1)
-
-        
-        # print(s[i-k:i], s[i-k-1:i], isPalindrome(s[i-k:i]), isPalindrome(s[i-k-1:i]))
-
-    print(dp[-1])
-        # if isPalindrome(s[])
-
-
-
-root = [1,4,3,7,6,8,5,'null','null','null','null',9,'null',10]
-root = [1,3,2,7,6,5,4]
-# root = [1,2,3,4,5,6]
-root = TreeNode.list_to_node(root)
-# print(TreeNode.levelOrder(root))
-
-def minOperations(root):
-    def levelOrder(root):
-        if not root:
-            return []
-        res = []
-        queue = [root]
-        while queue:
-            res.append([node.val for node in queue])
-            queue = [child for node in queue for child in (node.left, node.right) if child]
-        return res
-    nodes = levelOrder(root)
-    def perm(arr):                                            # this function simulates cycle sort,
-        pos = {m:j for j,m in enumerate(sorted(arr))}         # namely, traverses every cycle in
-        vis, tot = [0] * len(arr), 0                          # the permutation of elements and 
-        for i in range(len(arr)):                             # counts the number of swaps 
-            cnt = 0
-            while not vis[i] and i != pos[arr[i]]:            # it is known that cycle sort is the
-                vis[i], i = 1, pos[arr[i]]                    # sorting algorithm with the minmal
-                cnt += 1                                      # number of memory operations (swaps)
-            tot += max(0, cnt-1)                              # needed to sort an array
-        return tot
-    
-    return sum( perm(level) for level in nodes)
-
-def minSwapsForSorted(arr):                                            # this function simulates cycle sort,
+def minSwapsForSorted(arr):                               # this function simulates cycle sort,
     pos = {m:j for j,m in enumerate(sorted(arr))}         # namely, traverses every cycle in
     vis, tot = [0] * len(arr), 0                          # the permutation of elements and 
     for i in range(len(arr)):                             # counts the number of swaps 
@@ -300,56 +238,3 @@ def minSwapsForSorted(arr):                                            # this fu
             cnt += 1                                      # number of memory operations (swaps)
         tot += max(0, cnt-1)                              # needed to sort an array
     return tot
-    
-
-# print(minSwapsForSorted([7, 6, 5, 4]))
-
-
-# print( TreeNode.levelOrder( minOperations(root)) )
-"""Given an array of positive integers a, 
-your task is to calculate the sum of every possible a[i] ∘ a[j], 
-where a[i] ∘ a[j] is the concatenation of the string representations of a[i] and a[j] respectively.
-"""
-nums = [5, 3]
-nums = [1,2,3]
-
-def concatSum(nums):
-    """
-    Quadratic time complexity
-    """
-    return sum( int(str(a)+str(b)) for a,b in product(nums, repeat=2) )
-
-def concatSum(nums):
-    lowSum, offsetSum = 0, 0
-    for i in range(len(nums)):
-        lowSum += nums[i]
-        size = len(str(nums[i]))
-        offset = 10**size
-        offsetSum += offset
-    print(lowSum, offsetSum)
-    return lowSum * len(nums) + offsetSum * lowSum
-
-
-nums = [3,6,2,7,1]
-k = 6
-
-print(subarrays(list(range(1,4))))
-
-from math import lcm
-def subarrayLCM(nums,k):
-    res = 0
-    for i in range(len(nums)):
-        l = nums[i]
-        for j in range(i, len(nums)):
-            l = lcm(l, nums[j])
-            if l == k:
-                res += 1
-            if l > k:
-                break
-    return res
-
-# print(subarrayLCM(nums,k))
-
-
-# print(subarrayLCM(nums, 6))
-print(subarrays([1,11,1]))
