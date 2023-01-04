@@ -238,3 +238,85 @@ def minSwapsForSorted(arr):                               # this function simula
             cnt += 1                                      # number of memory operations (swaps)
         tot += max(0, cnt-1)                              # needed to sort an array
     return tot
+
+message = "this is really a very awesome message"
+limit = 9
+# ["thi<1/14>","s i<2/14>","s r<3/14>","eal<4/14>","ly <5/14>","a v<6/14>","ery<7/14>"," aw<8/14>","eso<9/14>","me<10/14>"," m<11/14>","es<12/14>","sa<13/14>","ge<14/14>"]
+
+def splitMessage(message, limit):
+    sz = lambda s: len(str(s))
+    cur = k = i = 0 # curr is the length of all indices, k is the denominator, i is the index of the message
+    while 3 + sz(k) * 2 < limit and cur + len(message) + (3 + sz(k)) * k > limit * k:
+        k += 1
+        cur += sz(k)
+    res = []
+    if 3 + sz(k) * 2 < limit:
+        for j in range(1, k + 1):
+            l = limit - (sz(j) + 3 + sz(k))
+            res.append( f'{message[i:i+l]}<{j}/{k}>' ) 
+            i += l
+    return res
+
+
+
+    
+print(
+splitMessage(message, limit)
+)
+edges = [[0,1],[1,2],[1,3],[3,4]]
+bob = 3
+amount = [-2,4,2,-4,6]
+def mostProfitablePath(edges, bob, amount) -> int:
+    n = len(edges) + 1
+    G = [[] for i in range(n)]
+    for i,j in edges:
+        G[i].append(j)
+        G[j].append(i)
+    seen = [0] * n
+
+    def dfs(i, d0):
+        seen[i] = 1
+        res = float('-inf')
+        db = 0 if i == bob else n
+        for j in G[i]:
+            if seen[j]: continue
+            cur, kk = dfs(j, d0 + 1)
+            res = max(res, cur)
+            db = min(db, kk)
+        if res == float('-inf'): res = 0
+        if d0 == db: res += amount[i] // 2
+        if d0 < db: res += amount[i]
+        return res, db + 1
+
+    return dfs(0, 0)[0]
+
+# print(mostProfitablePath(edges, bob, amount))
+
+low = 2
+high = 3
+zero = 1
+one = 2
+
+low = 3
+high = 3
+zero = 1
+one = 1
+def countGoodStrings(low, high, zero, one):
+    dp = [0] * (high + 1)
+    dp[zero] +=1
+    dp[one] +=1
+    for i in range( min(zero, one) + 1, high + 1):
+        dp[i] += dp[i - zero]
+        dp[i] += dp[i - one]
+        dp[i] %= 1000000007
+        # if i - zero >= 0:
+        #     dp[i] += dp[i - zero]
+        # if i - one >= 0:
+        #     dp[i] += dp[i - one]
+    return dp[high] if low == high else sum(dp[i] for i in range(low, high+1)) % 1000000007
+
+
+print(
+countGoodStrings(low, high, zero, one)
+)
+
