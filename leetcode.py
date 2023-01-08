@@ -27,15 +27,20 @@ class TreeNode:
         #     arr.append('null')
     @staticmethod
     def list_to_node(arr):
-        def helper(arr, index):
-            value = arr[index-1] if index <= len(arr) else None
-            if value and value!='null':
-                t = TreeNode(value)
-                t.left = helper(arr, index*2)
-                t.right = helper(arr, index*2 + 1)
-                return t
-            return None
-        root = helper(arr, 1)
+        queue = []
+        root = TreeNode(arr[0])
+        queue.append(root)
+        i = 1
+        while queue:
+            node = queue.pop(0)
+            if i < len(arr) and arr[i] != 'null':
+                node.left = TreeNode(arr[i])
+                queue.append(node.left)
+            i += 1
+            if i < len(arr) and arr[i] != 'null':
+                node.right = TreeNode(arr[i])
+                queue.append(node.right)
+            i += 1
         return root
     @staticmethod
     def levelOrder(root):
@@ -47,6 +52,21 @@ class TreeNode:
             res.append([node.val for node in queue])
             queue = [child for node in queue for child in (node.left, node.right) if child]
         return res
+    @staticmethod
+    def inOrder(root):
+        if not root:
+            return []
+        return TreeNode.inOrder(root.left) + [root.val] + TreeNode.inOrder(root.right)
+    @staticmethod
+    def preOrder(root):
+        if not root:
+            return []
+        return [root.val] + TreeNode.preOrder(root.left) + TreeNode.preOrder(root.right)
+    @staticmethod
+    def postOrder(root):
+        if not root:
+            return []
+        return TreeNode.postOrder(root.left) + TreeNode.postOrder(root.right) + [root.val]
 
 
 
@@ -239,3 +259,126 @@ def minSwapsForSorted(arr):                               # this function simula
         tot += max(0, cnt-1)                              # needed to sort an array
     return tot
 
+
+creators = ["alice","bob","alice","chris"]
+ids = ["one","two","three","four"]
+views = [5,10,5,4]
+
+creators = ["alice","alice","alice"]
+ids = ["a","b","c"]
+views = [1,2,2]
+def mostViewedVideosByCreator(creators, ids, views):
+    m = {}
+    ID = {} # creator -> id, view
+    # keep track of the highest views and the id with the lowest value
+    highest = 0
+    for creator, id, view in zip(creators, ids, views):
+        m[creator] = m.get(creator, 0) + view
+        if creator not in ID:
+            ID[creator] = (id, view)
+        # elif ID[creator][1] > view:
+        #     ID[creator] = ID[creator]
+        # if creator == 'p':
+        #     print(id, view)
+        # elif ID[creator][1] >= view:
+        elif ID[creator][1] < view or (ID[creator][1] == view and (id < ID[creator][0])):
+            ID[creator] = (id, view)
+        # elif ID[creator][1] >= view and isLexographicallySmaller(ID[creator][0],id):
+        #     ID[creator] = (id, view)
+        # ID[creator] = (id, view) if creator not in ID else ID[creator] if ID[creator][1] >= view and isLexographicallySmaller(ID[creator][0],id) else (id, view)
+        highest = max(highest, m[creator])
+    # print(ID['p'])
+    # print(max(m.items(), key=lambda x: x[1]))
+    res = []
+    for creator, totalViews in m.items():
+        if totalViews == highest:
+            res += [creator, ID[creator][0]],
+    return (res)
+
+# creators = ["u","ajf","n","kkmq","mwkim","p","ktjvr","ihmh","oulo","b","q","ofdim","rqbft","mdf","txt","xyjv","rlx","re","fyd","dq","frc","fag","xshlj","z","gii","z","le","fcvgf","yqbnk","vhke","udvp","rb","ppy","jywvl","xj","hb","ppqsq","waf","wpuw","qg","rnux","d","kxbcl","yoaqf","hnphp","w","nivm","hvymz","xze","bq","u","wbye","lmqoo","pc","q","t","jgiy","guv","fyc","ng","pvlg","aj","fhdo","maeu","zwfun","ravm","yypgx","cd","fkzmb","tvq","dm","aphdl","rbcp","dtcr","ehcv","k","c","hc","tg","wgin","mrrr","glr","fvxy","cap","xjjtq","hqp","bn","t","bc","cbbwf","ztxnz","xzmw","wsx","osim","m","cr","sp","s","v","he","mhcp","flz","owcx","zzi","p","wvvm","su","jp","qf","icqz","yy","k","jfv","qscyf","v","wj","nhlsi","r","vmd","nnbca","u","s","r","uoavb","qm","m","wio","ernca","h","bzrv"]
+# ids = ["z","w","scghn","mnmvy","xgnhf","khuxq","hei","wsowq","yae","cs","h","hyrrv","vli","pma","bxsh","xmm","qkimd","ut","fj","xyzw","scjsj","y","k","c","qgx","fgk","mg","rmgse","txsgi","fzn","z","t","ew","yi","wzitv","tqg","b","o","sesb","jpw","u","rwc","ermmg","rjsjw","qh","mqf","ax","anh","hanz","ooors","mv","shaca","doon","d","x","f","egmiy","lbfvj","edrsz","epwai","spvwi","xlh","eux","c","flw","udo","bmft","ohnl","o","novqs","l","vosc","nasy","p","vk","cx","krdo","zdusc","pm","pcc","ye","sx","cjjx","je","i","iywdt","sd","kmx","dfq","kcq","zbgjc","awvkp","utdq","wos","y","sch","jmsxr","aewo","ngy","b","tt","dfzb","db","nzm","fl","om","s","gmpa","ie","yj","nbey","v","yz","oqf","glo","daeig","wim","ay","d","qsgp","l","y","er","e","pz","wn","ys","upvkl","lzjn","fjs"]
+# views = [29,383,953,680,836,892,572,308,987,154,409,689,693,144,187,104,95,683,987,723,196,220,429,194,840,201,408,283,329,530,657,73,897,888,261,177,32,87,948,752,367,190,546,575,223,936,549,367,148,350,217,393,989,834,730,425,799,835,325,960,749,809,842,270,172,731,567,739,707,581,261,106,409,63,576,27,288,693,567,950,967,400,552,869,456,579,355,392,977,394,945,423,529,804,243,308,508,218,210,155,857,875,838,283,632,641,17,80,688,780,403,300,846,65,315,132,437,898,460,374,526,870,421,696,669,133,17,937,200,377]
+# print(
+#     mostViewedVideosByCreator(creators, ids, views)
+#     )
+
+n = 16
+target = 6
+
+n = 467
+target = 6
+
+
+
+# an integer is considered beautiful if digit sum is less than or equal to target
+# return the minimum non-negative integer x such that n + x is beautiful
+# digitSum(n + x) <= target
+# x <= inverseDigitSum(target) - n
+digitSum = lambda x: sum(map(int, str(x)))
+
+def bruteForce(n, target):
+    for x in range(1000000):
+        if digitSum(n + x) <= target:
+            return x
+    return -1
+
+# for n in range(467, 480):
+#     print( n, bruteForce(n, target) )
+
+# n = 467
+# for target in range(1, 150):
+#     print( target, bruteForce(n, target) )
+
+
+
+# dp(n=467, target=6) = 3 + dp(n=470, target=6) = 3 + 30 + dp(n=500, target=6) = 3 + 30 + 500 + dp(n=1000, target=6)
+
+def makeIntegerBeautiful(n, target):
+    def helper(n,exp):
+        if digitSum(n) <= target:
+            return 0
+        carry = pow(10, exp) - n % pow(10, exp)
+        return helper(n + carry, exp + 1) + carry
+    
+    return helper(n, 1)
+
+def makeIntegerBeautiful(n, target):
+    n0 = n
+    i = 0
+    while sum(map(int, str(n))) > target:
+        n = n // 10 + 1
+        i += 1
+    return n * (10 ** i) - n0
+
+# print( makeIntegerBeautiful(n, target) )
+
+
+root = [1,3,4,2,'null',6,5,'null','null','null','null','null',7]
+queries = [4]
+root = [5,8,9,2,1,3,7,4,6]
+queries = [3,2,4,8]
+root = TreeNode.list_to_node(root)
+print(
+    TreeNode.levelOrder(root)
+)
+
+
+
+
+from functools import lru_cache
+
+def treeQueries(root, queries):
+    @lru_cache(None)
+    def height(r): return 0 if not r else 1 + max(height(r.left), height(r.right))
+    ans = {}
+    def dfs(r, depth, maximum):
+        if not r: return
+        ans[r.val] = maximum
+        dfs(r.left, depth + 1, max(maximum, depth + height(r.right)))
+        dfs(r.right, depth + 1, max(maximum, depth + height(r.left)))
+    dfs(root, 0, 0)
+    return [ans[q] for q in queries]
+
+print(
+    treeQueries(root, queries)
+)
