@@ -260,3 +260,66 @@ def minSwapsForSorted(arr):                               # this function simula
     return tot
 
 
+
+banned = [1,6,5] 
+n = 5
+maxSum = 6
+
+banned = [1,2,3,4,5,6,7]
+n = 8
+maxSum = 1
+
+banned = [11]
+n = 7
+maxSum = 50
+def maxCount(banned, n, maxSum):
+    banned = set(banned)
+    candidates = [i for i in range(1, n+1) if i not in banned and i <= maxSum]
+    tally, total = 0, 0
+    for c in candidates:
+        if c + total > maxSum:
+            return tally
+        tally += 1
+        total += c
+    return tally
+    
+
+prizePositions = [1,1,2,2,3,3,5]
+k = 2
+
+n = len(prizePositions)
+segments = [(prizePositions[i], prizePositions[j]) for i in range(n) for j in range(i+1, n) if prizePositions [j] - prizePositions[i] == k]
+
+def maximizeWin(prizePositions, k):
+    A = prizePositions
+    dp = [0] * (len(A) + 1)
+    res = j = 0
+    for i, a in enumerate(A):
+        while A[i] - A[j] > k: j += 1 # A[i] - A[j] > k
+        dp[i + 1] = max(dp[i], i - j + 1)
+        res = max(res, i - j + 1 + dp[j])
+    return res
+
+# print(maximizeWin(prizePositions, k))
+
+grid = [[1,1,1],[1,0,0],[1,1,1]]
+grid = [[1,1,1],[1,0,1],[1,1,1]]
+
+
+
+
+def dfs(grid, i, j):
+    if i+1 == len(grid) and j+1 == len(grid[0]):
+        return True
+    if i >= len(grid) or j >= len(grid[0]) or grid[i][j] == 0:
+        return False
+    grid[i][j] = 0
+    return dfs(grid, i+1, j) or dfs(grid, i, j+1)
+
+def isPossbileToCutPath(grid):
+    if dfs(grid, 0, 0) == False:
+        return True
+    grid[0][0] = 1
+    return not dfs(grid, 0, 0)
+
+print(isPossbileToCutPath(grid))
