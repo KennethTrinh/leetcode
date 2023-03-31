@@ -261,3 +261,63 @@ def minSwapsForSorted(arr):                               # this function simula
 
 
 
+
+words = ["aba","bcb","ece","aa","e"]
+queries = [[0,2],[1,4],[1,1]]
+
+# words = ["a","e","i"]
+# queries = [[0,2],[0,1],[2,2]]
+
+prefixSum = lambda arr: [0] + list(accumulate(arr))
+def vowelStrings(words, queries):
+    VOWEL = set('aeiou')
+    arr = prefixSum(
+        [int(word[0] in VOWEL and word[-1] in VOWEL) for word in words]
+        )
+    return [ arr[r+1] - arr[l] for (l, r) in queries ]
+
+# print(vowelStrings(words, queries))
+
+nums = [2,3,5,9]
+k = 2
+nums = [2,7,9,3,1]
+k = 2
+
+def minCapability(nums, k):
+    def check(cap):
+        count=taken=0
+        for x in nums:
+            if taken:
+                taken=False
+            elif x<=cap:
+                count+=1
+                taken=True
+        return count>=k
+    l,r=min(nums),max(nums)
+    while l < r:
+        mid = (l + r) // 2
+        if check(mid):
+            r = mid
+        else:
+            l = mid + 1
+    return l  
+
+
+
+
+nums = [0,1,7,4,4,5]
+lower = 3
+upper = 6
+
+
+
+from bisect import bisect_left, bisect_right
+def countFairPairs(nums, left, right):
+    nums.sort()
+    ans = 0
+    for i in range(len(nums)):
+        v = nums[i]
+        a = bisect_left(nums, lower - v, lo=i+1, hi=len(nums))
+        b = bisect_right(nums, upper - v, lo=i+1, hi=len(nums))
+        ans += b - a
+    return ans
