@@ -262,3 +262,25 @@ def minSwapsForSorted(arr):                               # this function simula
 
 
 
+s = "25525511135"
+s = "101023"
+
+def solution(s):
+    result = []
+    def dfs(s, curr, count=0):
+        if not s and curr[-1] != '.':
+            result.append(curr)
+            return
+        if count == 4:
+            return
+        for i in range(1, len(s)+1):
+            if i > 1 and s[0] == '0':
+                return
+            if int(s[:i]) <= 255:
+                dfs(s[i:], curr + s[:i] + ('.' if count < 3 else ''), count+1)
+    dfs(s, '')
+    return result
+
+print(solution(s))
+
+
