@@ -2,11 +2,23 @@ from itertools import accumulate
 
 transpose = lambda arr: [list(row) for row in list(zip(*arr))]
 
-pprint = lambda arr: [print(row) for row in arr]
 isPowerofTwo = lambda x: (x & (x-1)) == 0
 prefixSum = lambda arr: [0] + list(accumulate(arr))
 countTotal = lambda P, x, y: P[y+1] - P[x]
 MOD = 1_000_000_007
+
+def zeros(*args) -> list:
+    if len(args) == 0:
+        raise ValueError("zeros() takes at least 1 argument (0 given)")
+    
+    if len(args) == 1 and isinstance(args[0], int):
+        return [0 for _ in range(args[0])]
+
+    return [zeros(*args[1:]) for _ in range(args[0])]
+
+def pp(arr) -> None:
+    for row in arr:
+        print(row)
 
 class TreeNode:
     def __init__(self, val=0, left=None, right=None):
@@ -258,7 +270,5 @@ def minSwapsForSorted(arr):                               # this function simula
             cnt += 1                                      # number of memory operations (swaps)
         tot += max(0, cnt-1)                              # needed to sort an array
     return tot
-
-
 
 
