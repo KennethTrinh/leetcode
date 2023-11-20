@@ -7,18 +7,32 @@ prefixSum = lambda arr: [0] + list(accumulate(arr))
 countTotal = lambda P, x, y: P[y+1] - P[x]
 MOD = 1_000_000_007
 
-def zeros(*args) -> list:
+def fill(*args, num=0) -> list:
     if len(args) == 0:
-        raise ValueError("zeros() takes at least 1 argument (0 given)")
+        raise ValueError("fill() takes at least 1 argument (0 given)")
     
     if len(args) == 1 and isinstance(args[0], int):
-        return [0 for _ in range(args[0])]
+        return [num for _ in range(args[0])]
 
-    return [zeros(*args[1:]) for _ in range(args[0])]
+    return [fill(*args[1:]) for _ in range(args[0])]
 
 def pp(arr) -> None:
-    for row in arr:
-        print(row)
+    def get_dims(arr):
+        try:
+            return 1 + get_dims(arr[0])
+        except:
+            return 0
+    if get_dims(arr) == 1:
+        print(arr)
+    elif get_dims(arr) == 2:
+        for row in arr:
+            print(row)
+    elif get_dims(arr) == 3: # 3D array :D
+        import pandas as pd
+        import numpy as np
+        df = [ [ np.array(arr[i][j]) for j in range(len(arr[0])) ] for i in range(len(arr)) ]
+        df = pd.DataFrame(df)
+        print(df)
 
 class TreeNode:
     def __init__(self, val=0, left=None, right=None):
@@ -272,3 +286,149 @@ def minSwapsForSorted(arr):                               # this function simula
     return tot
 
 
+
+
+def random_grid_generator(m, n):
+    import random
+    random.seed(1)
+    grid = zeros(m, n)
+    P = {
+        -1: 0.1,
+        0: 0.4,
+        1: 0.5
+    }
+    for i in range(m):
+        for j in range(n):
+            grid[i][j] = random.choices(list(P.keys()), list(P.values()))[0]
+    return grid
+
+# print(random_grid_generator(5, 5))
+
+grid = [
+    [0, 1, 1, 0, 0], 
+    [0, 1, 1, -1, -1], 
+    [1, 0, 1, -1, 0], 
+    [1, 0, 1, 1, -1], 
+    [-1, 1, 1, 0, 0]
+]
+
+grid = [
+    [0, 1, -1],
+    [1, 0, -1],
+    [1, 1, 1]
+]
+
+
+isValid = lambda i, j, grid: 0 <= i < len(grid) and 0 <= j < len(grid[0]) and grid[i][j] != -1
+
+def brute_force(grid):
+    from itertools import combinations
+    m, n = len(grid), len(grid[0])
+    # generate all paths from (0, 0) to (m-1, n-1)
+    def dfs(grid):
+        def backtrack(i, j, path):
+            if not isValid(i, j, grid):
+                return
+            if i == m-1 and j == n-1:
+                paths.append(path)
+                return
+            for di, dj in [(1, 0), (0, 1)]:
+                backtrack(i+di, j+dj, path + [(i+di, j+dj)])
+        paths = []
+        backtrack(0, 0, [(0, 0)])
+        return paths
+
+    paths = dfs(grid)
+    best = 0
+    for path1, path2 in combinations(paths, 2):
+        result = 0
+        unique = set(path1 + path2)
+        for i, j in unique:
+            if grid[i][j] == 1:
+                result += 1
+        best = max(best, result)
+    return best
+
+# print(brute_force(grid))
+
+
+
+# Fact: in an m x n grid, there are comb(m+n-2, m-1) paths from (0, 0) to (m-1, n-1) --> (do the stars and bars thing)
+
+# assuming the grid is n x n -> there are <= comb(n + n - 2, n-1) = comb(2n-2, n-1) paths from (0, 0) to (n-1, n-1) 
+# --> (and therefore comb(2n-2, n-1) paths from (n-1, n-1) to (0, 0))
+
+# So to solve this problem, we need to consider all paths to (n-1, n-1) , and pick any other path back to (0, 0),
+# so there are theoretically comb( comb(2n-2, n-1), 2) paths to consider, which is too many
+
+# if you just want to go from (0, 0) to (n-1, n-1), the solution is as follows:
+def one_way(grid):
+    n = len(grid)
+    dp = fill(n, n)
+    for i in range(n):
+        for j in range(n):
+            if grid[i][j] == -1:
+                dp[i][j] = 0
+            elif i == 0 and j == 0:
+                dp[i][j] = grid[i][j]
+            elif i == 0:
+                dp[i][j] = dp[i][j-1] + grid[i][j]
+            elif j == 0:
+                dp[i][j] = dp[i-1][j] + grid[i][j]
+            else:
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1]) + grid[i][j]
+
+# pp(dp)
+
+# however, if you want to go from (0, 0) to (n-1, n-1) and back to (0, 0), we need a different approach:
+n = len(grid)
+dp = fill(n, n)
+dp[0][0] = grid[0][0]
+
+n = len(grid)
+
+# 2d DP array where dp[x1][x2] contains the maximum number of cherries
+# that can be attained from a 2-legged path starting from (x1, y1) for leg 1
+# (x2, y2) for leg 2. This DP only stores the answers for a given path 
+# length. That's why we don't store the y coordinates, they can be derived
+# since we know X + Y = length of path.
+dp = [[-1] * n for _ in range(n)]
+dp[0][0] = grid[0][0]
+
+max_path_length = 2 * n - 2
+for path_length in range(1, max_path_length + 1):
+    # For a given path_length, the range [start_x, end_x] represents all the
+    # valid x coordinates that we can consider. We iterate through this
+    # range backwards to prevent overwriting old dp values which allows us
+    # not to need a second dp array.
+    start_x = min(n - 1, path_length)
+    end_x = max(0, path_length - n + 1)
+    for x1 in range(start_x, end_x - 1, -1):
+        # We can let x2 >= x1 since the ordering of the points doesn't matter
+        for x2 in range(start_x, x1 - 1, -1):
+            y1 = path_length - x1
+            y2 = path_length - x2
+            
+            if grid[x1][y1] == -1 or grid[x2][y2] == -1:
+                dp[x1][x2] = -1
+                continue
+
+            # Consider 4 cases:
+            # 1. Move right for path 1 and 2.
+            # 2. Move right for path 1 and down for path 2.
+            # 3. Move down for path 1 and right for path 2.
+            # 4. Move down for both path 1 and path 2.
+            # Return -1 if out of bounds
+            dp[x1][x2] = max(
+                dp[x1][x2],
+                -1 if x1 == 0 else dp[x1 - 1][x2],
+                -1 if x2 == 0 else dp[x1][x2 - 1],
+                -1 if x1 == 0 and x2 == 0 else dp[x1 - 1][x2 - 1],
+            )
+
+            if dp[x1][x2] >= 0:
+                num_cherries = grid[x1][y1] + grid[x2][y2] if x1 != x2 else grid[x1][y1]
+                dp[x1][x2] += num_cherries
+
+result = dp[n - 1][n - 1]
+pp(dp)
