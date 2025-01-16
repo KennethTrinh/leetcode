@@ -288,3 +288,29 @@ def minSwapsForSorted(arr):                               # this function simula
 
 
 
+def solution(arr):       
+    dp = {0: 0} # dp[reachable key] = smallest max value; max(dp) <= 2047 = 1024*2-1 bc A[i] <= 1024 so you can't get any higher bits
+    for x in arr:
+        pairs = list(dp.items()) # modifying dictionary during iteration => store old view
+        for can_reach, limit in pairs:
+            if limit >= x: # don't bother - using x is impossible since x has to be the new limit
+                continue
+            
+            now_reachable = can_reach | x
+            if now_reachable not in dp or dp[now_reachable] > x:
+                if now_reachable  in dp and dp[now_reachable] > x:
+                    print(f"dp[now_reachable]: {dp[now_reachable]}, x: {x}")
+                # print(f"can_reach: {can_reach}, limit: {limit}, now_reachable: {now_reachable}, x: {x}")
+                dp[now_reachable] = x
+        print(dp)
+    return sorted(dp.keys()) # only care about reachable thingss
+
+# def solution(arr):
+#     res, cur = set(), set()
+#     for i in arr:
+#         cur = {i | j for j in cur} | {i}
+#         res |= cur
+#     return res
+
+print(solution([4, 2, 7, 1, 6]))
+# https://leetcode.com/problems/bitwise-ors-of-subarrays/solutions/165929/bitwise-ors-of-subarrays/
