@@ -343,7 +343,70 @@ def minTimeToExecute(execution, x, y):
             
     return ret
 
-print(minTimeToExecute([3, 4, 1, 7, 6] , x = 4, y = 2 ))
+def isAchievable(target, throughput, scaling_cost, budget):
+    total_cost = 0
+    for i in range(len(throughput)):
+        if throughput[i] >= target:
+            continue
+        # Calculate required scaling
+        scales_needed = ((target - throughput[i]) + throughput[i] - 1) // throughput[i]
+        cost = scales_needed * scaling_cost[i]
+        total_cost += cost
+        if total_cost > budget:
+            return False
+    return True
+
+def maxThroughput(throughput, scaling_cost, budget):
+    left = min(throughput)
+    right = left + budget * max(throughput) // min(scaling_cost)
+    
+    result = left
+    while left <= right:
+        mid = (left + right) // 2
+        if isAchievable(mid, throughput, scaling_cost, budget):
+            result = mid
+            left = mid + 1
+        else:
+            right = mid - 1
+            
+    return result
+
+
+def countStableSegmentsOptimal(n, capacity):
+    # Create prefix sum array
+    prefix = [0] * (n + 1)
+    for i in range(n):
+        prefix[i + 1] = prefix[i] + capacity[i]
+    
+    count = 0
+    # For each possible left endpoint
+    for i in range(n-2):
+        # For each possible right endpoint
+        for j in range(i+2, n):
+            # Get interior sum using prefix array
+            interior_sum = prefix[j] - prefix[i+1]
+            # Check if segment is stable
+            if capacity[i] == capacity[j] and capacity[i] == interior_sum:
+                count += 1
+    
+    return count
+
+# Test cases
+n1 = 5
+capacity1 = [9,3,3,3,9]
+print(countStableSegmentsOptimal(n1, capacity1))  # Should print 2
+
+n2 = 7
+capacity2 = [9,3,1,2,3,9,10]
+print(countStableSegmentsOptimal(n2, capacity2))  # Should print 2
+
+# Test case
+# throughput = [4, 2, 7]
+# scaling_cost = [3, 5, 6]
+# budget = 32
+# print(maxThroughput(throughput, scaling_cost, budget))  # Should output 10
+
+# print(minTimeToExecute([3, 4, 1, 7, 6] , x = 4, y = 2 ))
 
 # print(goodness([4, 2, 4, 1]))
 # print(maxLengthOfConsistentLogs([1,2,1,3,4,2,4,3,3,4]))
