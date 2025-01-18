@@ -288,29 +288,62 @@ def minSwapsForSorted(arr):                               # this function simula
 
 
 
-def solution(arr):       
-    dp = {0: 0} # dp[reachable key] = smallest max value; max(dp) <= 2047 = 1024*2-1 bc A[i] <= 1024 so you can't get any higher bits
+def goodness(arr):
+    dp = {0: 0}
     for x in arr:
-        pairs = list(dp.items()) # modifying dictionary during iteration => store old view
-        for can_reach, limit in pairs:
-            if limit >= x: # don't bother - using x is impossible since x has to be the new limit
+        for target, limit in list(dp.items()):
+            if limit >= x: # no way
                 continue
+            new_target = target | x
+            if new_target not in dp or dp[new_target] > x:
+                dp[new_target] = x
+    return sorted(dp.keys())
+
+from collections import Counter
+def maxLengthOfConsistentLogs(nums):
+    min_freq = min(Counter(nums).values())
+    
+    ans, start = 0, -1
+    frequency = Counter()
+    for end in range(len(nums)):
+        frequency[nums[end]] += 1
+        while frequency[nums[end]] > min_freq:
+            start += 1
+            frequency[nums[start]] -= 1
+        ans = max(ans, end - start)
+    return ans
+
+
+from math import ceil
+
+def feas(execution, x, y, operations):
+    # diff = extra time major job gets
+    diff = x - y
+    needed_major_ops = 0
+    
+    for el in execution:
+        # Subtract base progress (y seconds per operation)
+        remaining = max(0, el - operations*y)
+        # How many times this job needs to be major
+        needed_major_ops += ceil(remaining / diff)
+        
+    # Check if required major operations fits within total operations
+    return needed_major_ops <= operations
+
+def minTimeToExecute(execution, x, y):
+    l, r = 0, sum(execution)
+    ret = -1
+    while l <= r:
+        m = (l + r) // 2
+        if feas(execution, x, y, m):
+            ret = m
+            r = m - 1
+        else:
+            l = m + 1
             
-            now_reachable = can_reach | x
-            if now_reachable not in dp or dp[now_reachable] > x:
-                if now_reachable  in dp and dp[now_reachable] > x:
-                    print(f"dp[now_reachable]: {dp[now_reachable]}, x: {x}")
-                # print(f"can_reach: {can_reach}, limit: {limit}, now_reachable: {now_reachable}, x: {x}")
-                dp[now_reachable] = x
-        print(dp)
-    return sorted(dp.keys()) # only care about reachable thingss
+    return ret
 
-# def solution(arr):
-#     res, cur = set(), set()
-#     for i in arr:
-#         cur = {i | j for j in cur} | {i}
-#         res |= cur
-#     return res
+print(minTimeToExecute([3, 4, 1, 7, 6] , x = 4, y = 2 ))
 
-print(solution([4, 2, 7, 1, 6]))
-# https://leetcode.com/problems/bitwise-ors-of-subarrays/solutions/165929/bitwise-ors-of-subarrays/
+# print(goodness([4, 2, 4, 1]))
+# print(maxLengthOfConsistentLogs([1,2,1,3,4,2,4,3,3,4]))
